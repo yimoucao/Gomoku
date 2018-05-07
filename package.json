@@ -8,9 +8,13 @@
     "react-scripts": "1.0.17"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "react-scripts start ",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "my_comment": {
+    "Linux/Mac": "start\": \"PORT=3006 react-scripts start",
+    "Windows": "start\": \"set PORT=3006 && react-scripts start"
   }
 }

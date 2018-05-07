@@ -29,7 +29,7 @@ async def wshandler(request):
     while True:
         msg = await ws.receive()
         if msg.tp == web.MsgType.text:
-            print("Got message %s" % msg.data)
+            print("Got message {}".format(msg.data))
 
             data = json.loads(msg.data)
             # if type(data) == int and player:
@@ -59,19 +59,13 @@ async def wshandler(request):
                     # TODO: if game is None, send errmsg to player
                     game.addPlayer(playerAgent)
 
-            #     if not game.running:
-            #         game.reset_world()
-            #
-            #         print("Starting game loop")
-            #         asyncio.ensure_future(game_loop(game))
-            #
-            #     game.join(player)
                 if data[0] == "new_move":
                     from_player = PlayerAgent.getMapping(ws)
                     game = Game.getMapping(from_player)
                     game.sendMove(data[1], from_player)
 
                 if data[0] == "I_win":
+                    # TODO: the server must validate if the user does win
                     from_player = PlayerAgent.getMapping(ws)
                     game = Game.getMapping(from_player)
                     game.sendFinish(from_player, normal=True) # game_finish, you_win, you_lose
