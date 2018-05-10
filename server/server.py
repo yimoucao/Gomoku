@@ -4,7 +4,6 @@ import json
 from aiohttp import web
 from player import PlayerAgent
 
-import settings
 from game import Game
 
 async def handle(request):
@@ -38,6 +37,7 @@ async def wshandler(request):
             if type(data) != list:
                 continue
 
+            # TODO: implement a message queue?
             # player is not there
             if not playerAgent:
                 if data[0] == "new_player":
@@ -112,16 +112,6 @@ async def wshandler(request):
     print("Closed connection")
     return ws
 
-# async def game_loop(game):
-#     game.running = True
-#     while 1:
-#         game.next_frame()
-#         if not game.count_alive_players():
-#             print("Stopping game loop")
-#             break
-#         await asyncio.sleep(1./settings.GAME_SPEED)
-#     game.running = False
-
 def getGameInList(game_id):
     """game_id should a integer"""
     games = app['games']
@@ -132,10 +122,6 @@ def getGameInList(game_id):
 
 def removeGameInList(game):
     app['games'] = [item for item in app['games'] if item != game]
-
-
-
-
 
 
 event_loop = asyncio.get_event_loop()

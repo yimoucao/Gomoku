@@ -4,12 +4,19 @@ import isWin from './checkwin.js';
 import './index.css';
 
 class Square extends React.Component {
+  renderStone() {
+    if (this.props.value === "X") {
+      return ("⚪️");
+    } else if (this.props.value === "O"){
+      return ("⚫️");
+    }
+  }
+
   render() {
     return (
       <button className="square" onClick={(e)=>this.props.onButtonClick(e)}>
-        {this.props.value}
+        {this.renderStone()}
       </button>
-      // <button className="square">&#10011;</button>
     );
   }
 }
