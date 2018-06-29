@@ -2,6 +2,7 @@
 Gomoku/GoBang/Five-in-a-Row. 1v1 gaming, also supports watching as audience
 
 ### Requirements
+node.js
 python>=3.4
 
 ### Basic usages
@@ -14,8 +15,10 @@ python server/server.py
 
 npm start
 
+### build front end files
+npm run build
 
-### Pics
+### Demo pics
 
 ![pic1](./demo_pics/pic1.png)
 

@@ -2,9 +2,12 @@ import os
 import asyncio
 import json
 from aiohttp import web
-from player import PlayerAgent
+import logging
 
+from player import PlayerAgent
 from game import Game
+
+logging.basicConfig(filename='server.log', filemode='w', level=logging.DEBUG)
 
 async def handle(request):
     ALLOWED_FILES = ["index.html", "style.css"]
@@ -19,7 +22,7 @@ async def handle(request):
 
 
 async def wshandler(request):
-    print("Connected")
+    logging.info("Connected")
     app = request.app
     ws = web.WebSocketResponse()
     await ws.prepare(request)
@@ -28,7 +31,7 @@ async def wshandler(request):
     while True:
         msg = await ws.receive()
         if msg.tp == web.MsgType.text:
-            print("Got message {}".format(msg.data))
+            logging.info("Got message {}".format(msg.data))
 
             data = json.loads(msg.data)
             # if type(data) == int and player:
@@ -93,7 +96,7 @@ async def wshandler(request):
             game = Game.getMapping(offliner)
             if game:
                 # if game.isOn():
-                print("going to send offline")
+                logging.info("going to send offline")
                 game.sendOffline(offliner)
                 # else:
                 game.emptyPlayers()
@@ -109,7 +112,7 @@ async def wshandler(request):
     # if player:
     #     game.player_disconnected(player)
 
-    print("Closed connection")
+    logging.info("Closed connection")
     return ws
 
 def getGameInList(game_id):

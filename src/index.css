@@ -34,12 +34,3 @@
 #root .kbd-navigation .square:focus {
   background: #ddd;
 }
-
-#root .game {
-  /* display: flex;
-  flex-direction: row; */
-}
-
-#root .game-info {
-  /* margin-left: 20px; */
-}

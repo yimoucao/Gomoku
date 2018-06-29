@@ -1,3 +1,4 @@
+import logging
 import random
 
 class Game:
@@ -61,7 +62,7 @@ class Game:
     # async start???
     def start(self):
         if len(self.players) != 2:
-            print("cannot start")
+            logging.info("cannot start")
             return
 
         # TODO: toss stone
