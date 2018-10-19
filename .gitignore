@@ -1,5 +1,6 @@
 # files to ignore
+.vscode/
 build/
 node_modules/
-server/__pycache__/
-server/*log
+__pycache__/
+*.log
