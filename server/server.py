@@ -7,17 +7,19 @@ import logging
 from player import PlayerAgent
 from game import Game
 
-logging.basicConfig(filename='server.log', filemode='w', level=logging.DEBUG)
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+INDEX_FILE_PATH = os.path.join(DIR_PATH, 'index.html')
+
+logging.basicConfig(
+    filename=os.path.join(DIR_PATH, 'server.log'),
+    filemode='w', level=logging.DEBUG)
 
 async def handle(request):
-    ALLOWED_FILES = ["index.html", "style.css"]
-    name = request.match_info.get('name', 'index.html')
-    if name in ALLOWED_FILES:
-        try:
-            with open(name, 'rb') as index:
-                return web.Response(body=index.read(), content_type='text/html')
-        except FileNotFoundError:
-            pass
+    try:
+        with open(INDEX_FILE_PATH, 'rb') as index:
+            return web.Response(body=index.read(), content_type='text/html')
+    except FileNotFoundError:
+        pass
     return web.Response(status=404)
 
 

@@ -1,7 +1,6 @@
 //============== Util functions=================
 function getWsErrorReason(code) {
     var reason = "";
-    console.log(typeof code);
     if (code === 1000)
         reason = "Normal closure, meaning that the purpose for which the connection was established has been fulfilled.";
     else if (code === 1001)

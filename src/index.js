@@ -92,6 +92,7 @@ class App extends React.Component {
       this.ws.onopen = (e)=>{this.wsOpenHandler(e)};
       this.ws.onmessage = (e)=>{this.wsMessageHandler(e)};
       this.ws.onerror = (e)=>{this.wsErrorHandler(e)};
+      this.ws.onclose = (e)=>{this.wsErrorHandler(e)};
 
     }
 

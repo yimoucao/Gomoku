@@ -19,7 +19,7 @@ class Status extends React.Component {
                     </span>
                 </div>
                 <div>
-                    Server: {this.props.connectStatus}
+                    Server <span title={ this.props.connectStatus } role="img" aria-label="status">❔</span>
                 </div>
             </div>
         );
