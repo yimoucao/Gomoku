@@ -86,7 +86,7 @@ class App extends React.Component {
       // console.log(this.state.nameInput);
       // connect ws
       this.setState({connectStatus: "connecting"});
-      console.log(window.location.hostname)
+      // console.log(window.location.hostname)
       var ws_url = "ws://" + window.location.hostname + ":5000/connect";
       this.ws = new WebSocket(ws_url);
       this.ws.onopen = (e)=>{this.wsOpenHandler(e)};
