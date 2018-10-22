@@ -41,16 +41,16 @@ class Game:
         self.game_on = False
         self.watchers = list()
 
-    def addPlayer(self, player2):
+    async def addPlayer(self, player2):
         # TODO: type check
         # TODO: player number check
         if len(self.players) < 2:
             self.players.append(player2) # add to game's players list
             Game.updateMapping(player2, self) # add to global mappings
             if len(self.players) == 2:
-                self.start()
+                await self.start()
         else:
-            self.addWatcher(player2)
+            await self.addWatcher(player2)
         return
 
     # def removePlayer
@@ -59,8 +59,7 @@ class Game:
         [Game.popMapping(p) for p in self.players]
         self.players = list() # set to an empty list
 
-    # async start???
-    def start(self):
+    async def start(self):
         if len(self.players) != 2:
             logging.info("cannot start")
             return
@@ -69,8 +68,8 @@ class Game:
         stones = ['X','O']
         random.shuffle(stones) # shuffle in place
         # TODO: send 'game_start, game, stone, opponent for each player
-        self.players[0].sendGameStart(self, stones[0], self.players[1])
-        self.players[1].sendGameStart(self, stones[1], self.players[0])
+        await self.players[0].sendGameStart(self, stones[0], self.players[1])
+        await self.players[1].sendGameStart(self, stones[1], self.players[0])
         self.game_on = True
         # TODO: aync game loop???
         pass
@@ -84,7 +83,7 @@ class Game:
     #     to_player = player0 if player0!=from_player else player1
     #     to_player.sendComponentMove(position, from_player.stone)
 
-    def sendMove(self, placings, from_player):
+    async def sendMove(self, placings, from_player):
         if not from_player:
             # error
             return
@@ -92,11 +91,11 @@ class Game:
         player0 = self.players[0]
         player1 = self.players[1]
         to_player = player0 if player0!=from_player else player1
-        to_player.sendComponentMove(placings, from_player.stone)
+        await to_player.sendComponentMove(placings, from_player.stone)
         msg = "{}'s turn".format(to_player.playerName)
-        self.broadcastToWatchers(msg=msg)
+        await self.broadcastToWatchers(msg=msg)
 
-    def sendFinish(self, from_player, normal=True):
+    async def sendFinish(self, from_player, normal=True):
         if not from_player:
             # error
             return
@@ -104,10 +103,10 @@ class Game:
             player0 = self.players[0]
             player1 = self.players[1]
             loser = player0 if player0 != from_player else player1
-            from_player.sendWin()
-            loser.sendLose()
+            await from_player.sendWin()
+            await loser.sendLose()
             msg = "{} won".format(from_player.playerName)
-            self.broadcastToWatchers(msg=msg)
+            await self.broadcastToWatchers(msg=msg)
         else:
             # not normal, board is full
             pass
@@ -116,7 +115,7 @@ class Game:
     def isOn(self):
         return self.game_on
 
-    def sendOffline(self, offliner):
+    async def sendOffline(self, offliner):
         if not offliner:
             # error
             pass
@@ -124,12 +123,12 @@ class Game:
         try:
             player1 = self.players[1]
             receiver = player0 if player0 != offliner else player1
-            receiver.sendOffline(offliner)
+            await receiver.sendOffline(offliner)
         except IndexError:
             pass
         self.game_on = False
 
-    def sendLeave(self, quitor):
+    async def sendLeave(self, quitor):
         if not quitor:
             # error
             pass
@@ -137,23 +136,23 @@ class Game:
         try:
             player1 = self.players[1]
             receiver = player0 if player0 != quitor else player1
-            receiver.sendLeave(quitor)
+            await receiver.sendLeave(quitor)
         except IndexError:
             pass
         self.game_on = False
 
-    def addWatcher(self, watcher):
+    async def addWatcher(self, watcher):
         self.watchers.append(watcher)
         Game.updateWatchersMapping(watcher, self)
-        self.ackWatcher(watcher)
+        await self.ackWatcher(watcher)
 
     def removeWatcher(self, watcher):
         self.watchers = [w for w in self.watchers if w != watcher]
         Game.popWatchersMapping(watcher)
 
-    def ackWatcher(self, watcher, msg=None):
-        watcher.sendWatch(self, self.players[0], self.players[1], msg)
+    async def ackWatcher(self, watcher, msg=None):
+        await watcher.sendWatch(self, self.players[0], self.players[1], msg)
 
-    def broadcastToWatchers(self, msg):
-        if self.watchers:
-            [self.ackWatcher(watcher, msg) for watcher in self.watchers]
+    async def broadcastToWatchers(self, msg):
+        for watcher in self.watchers:
+            await self.ackWatcher(watcher, msg)

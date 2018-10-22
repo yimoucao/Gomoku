@@ -1,7 +1,7 @@
 import os
 import asyncio
 import json
-from aiohttp import web
+from aiohttp import web, WSMsgType
 import logging
 
 from player import PlayerAgent
@@ -11,7 +11,7 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 INDEX_FILE_PATH = os.path.join(DIR_PATH, 'index.html')
 
 logging.basicConfig(
-    filename=os.path.join(DIR_PATH, 'server.log'),
+    filename=os.path.join(DIR_PATH, 'log'),
     filemode='w', level=logging.DEBUG)
 
 async def handle(request):
@@ -32,7 +32,7 @@ async def wshandler(request):
     playerAgent = None
     while True:
         msg = await ws.receive()
-        if msg.tp == web.MsgType.text:
+        if msg.type == WSMsgType.TEXT:
             logging.info("Got message {}".format(msg.data))
 
             data = json.loads(msg.data)
@@ -47,33 +47,33 @@ async def wshandler(request):
             if not playerAgent:
                 if data[0] == "new_player":
                     playerAgent = PlayerAgent(data[1].strip(), ws)
-                    playerAgent.initialHandshake()
-                    playerAgent.sendGamesList(app["games"])
+                    await playerAgent.initialHandshake()
+                    await playerAgent.sendGamesList(app["games"])
 
                     # player = game.new_player(data[1], ws)
             else: # player is there
                 if data[0] == "new_game":
                     game = Game(playerAgent) # open a new game add the player into the game
                     app["games"].append(game)
-                    playerAgent.sendGameAck(game)
-                    PlayerAgent.sendAllGamesList(app["games"])
+                    await playerAgent.sendGameAck(game)
+                    await PlayerAgent.sendAllGamesList(app["games"])
 
                 if data[0] == "join_game":
                     # get game obj
                     game = getGameInList(int(data[1]))
                     # TODO: if game is None, send errmsg to player
-                    game.addPlayer(playerAgent)
+                    await game.addPlayer(playerAgent)
 
                 if data[0] == "new_move":
                     from_player = PlayerAgent.getMapping(ws)
                     game = Game.getMapping(from_player)
-                    game.sendMove(data[1], from_player)
+                    await game.sendMove(data[1], from_player)
 
                 if data[0] == "I_win":
                     # TODO: the server must validate if the user does win
                     from_player = PlayerAgent.getMapping(ws)
                     game = Game.getMapping(from_player)
-                    game.sendFinish(from_player, normal=True) # game_finish, you_win, you_lose
+                    await game.sendFinish(from_player, normal=True) # game_finish, you_win, you_lose
                     # game.emptyPlayers()
                     # removeGameInList(game)
 
@@ -82,24 +82,24 @@ async def wshandler(request):
                     game = Game.getMapping(quitor)
                     if game:
                         # if game.isOn():
-                        game.sendLeave(quitor)
+                        await game.sendLeave(quitor)
                         # else:
                         game.emptyPlayers()
                         removeGameInList(game)
                     else: # the quitor might be a watcher
                         game = Game.getWatchersMapping(quitor)
                         game.removeWatcher(quitor) if game else None
-                    PlayerAgent.sendAllGamesList(app["games"])
+                    await PlayerAgent.sendAllGamesList(app["games"])
                     # quitor.sendGamesList(app["games"])
 
 
-        elif msg.tp == web.MsgType.close:
+        elif msg.type == WSMsgType.CLOSE:
             offliner = PlayerAgent.getMapping(ws)
             game = Game.getMapping(offliner)
             if game:
                 # if game.isOn():
                 logging.info("going to send offline")
-                game.sendOffline(offliner)
+                await game.sendOffline(offliner)
                 # else:
                 game.emptyPlayers()
                 removeGameInList(game)
@@ -108,7 +108,7 @@ async def wshandler(request):
                 game.removeWatcher(offliner) if game else None
 
             PlayerAgent.popMapping(ws)
-            PlayerAgent.sendAllGamesList(app["games"])
+            await PlayerAgent.sendAllGamesList(app["games"])
             break
 
     # if player:

@@ -19,9 +19,9 @@ class PlayerAgent:
         PlayerAgent._Mapping.pop(ws, None)
 
     @staticmethod
-    def sendAllGamesList(games):
+    async def sendAllGamesList(games):
         for player in PlayerAgent._Mapping.values():
-            player.sendGamesList(games)
+            await player.sendGamesList(games)
 
     def __init__(self, playerName, ws):
         #TODO: ws type check
@@ -34,26 +34,25 @@ class PlayerAgent:
 
 
 
-    def initialHandshake(self):
+    async def initialHandshake(self):
         # msg = json.dumps([('handshake', self._id, 'x')])
         # self._ws.send_str(msg)
-        self._sendMessage('handshake', self._id)
+        await self._sendMessage('handshake', self._id)
 
-    def sendGamesList(self, games):
+    async def sendGamesList(self, games):
         if not games:
-            self._sendMessage('gameslist', None)
+            await self._sendMessage('gameslist', None)
             return
         gamesList = [game._id for game in games]
-        self._sendMessage('gameslist', gamesList)
+        await self._sendMessage('gameslist', gamesList)
         return
 
-    def sendGameAck(self, game):
-        self._sendMessage('newgame_ack', game._id)
-        return
+    async def sendGameAck(self, game):
+        await self._sendMessage('newgame_ack', game._id)
 
-    def sendGameStart(self, game, stone, opponent):
+    async def sendGameStart(self, game, stone, opponent):
         self.stone = stone
-        self._sendMessage('game_start', game._id, stone, opponent.playerName)
+        await self._sendMessage('game_start', game._id, stone, opponent.playerName)
 
     # def sendComponentMove(self, position, stone):
     #     if not position or not stone:
@@ -61,30 +60,30 @@ class PlayerAgent:
     #         return
     #     self._sendMessage('opponent_move', position, stone)
 
-    def sendComponentMove(self, placings, stone):
+    async def sendComponentMove(self, placings, stone):
         if not placings or not stone:
             # error
             return
-        self._sendMessage('opponent_move', placings, stone)
+        await self._sendMessage('opponent_move', placings, stone)
 
-    def sendWin(self):
-        self._sendMessage('you_win')
+    async def sendWin(self):
+        await self._sendMessage('you_win')
 
-    def sendLose(self):
-        self._sendMessage('you_lose')
+    async def sendLose(self):
+        await self._sendMessage('you_lose')
 
-    def sendOffline(self, offliner):
-        self._sendMessage('opponent_offline', offliner.playerName)
+    async def sendOffline(self, offliner):
+        await self._sendMessage('opponent_offline', offliner.playerName)
 
-    def sendLeave(self, quitor):
-        self._sendMessage('opponent_left', quitor.playerName)
+    async def sendLeave(self, quitor):
+        await self._sendMessage('opponent_left', quitor.playerName)
 
-    def sendWatch(self, game, gamer1, gamer2, msg=None):
-        self._sendMessage('you_watch', game._id, game.recent_placings, gamer1.playerName, gamer2.playerName, msg)
+    async def sendWatch(self, game, gamer1, gamer2, msg=None):
+        await self._sendMessage('you_watch', game._id, game.recent_placings, gamer1.playerName, gamer2.playerName, msg)
 
-    def _sendMessage(self, *args):
+    async def _sendMessage(self, *args):
         msg = json.dumps([args])
-        self._ws.send_str(msg)
+        await self._ws.send_str(msg)
 
 
 
