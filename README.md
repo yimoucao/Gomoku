@@ -6,7 +6,7 @@ node.js 8.12.0
 
 python>=3.4
 
-aiohttp=3.4.4
+aiohttp==3.4.4
 
 ### Basic usages
 
