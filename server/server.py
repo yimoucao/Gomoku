@@ -14,6 +14,7 @@ logging.basicConfig(
     filename=os.path.join(DIR_PATH, 'log'),
     filemode='w', level=logging.DEBUG)
 
+
 async def handle(request):
     try:
         with open(INDEX_FILE_PATH, 'rb') as index:
@@ -51,9 +52,10 @@ async def wshandler(request):
                     await playerAgent.sendGamesList(app["games"])
 
                     # player = game.new_player(data[1], ws)
-            else: # player is there
+            else:  # player is there
                 if data[0] == "new_game":
-                    game = Game(playerAgent) # open a new game add the player into the game
+                    # open a new game add the player into the game
+                    game = Game(playerAgent)
                     app["games"].append(game)
                     await playerAgent.sendGameAck(game)
                     await PlayerAgent.sendAllGamesList(app["games"])
@@ -73,7 +75,8 @@ async def wshandler(request):
                     # TODO: the server must validate if the user does win
                     from_player = PlayerAgent.getMapping(ws)
                     game = Game.getMapping(from_player)
-                    await game.sendFinish(from_player, normal=True) # game_finish, you_win, you_lose
+                    # game_finish, you_win, you_lose
+                    await game.sendFinish(from_player, normal=True)
                     # game.emptyPlayers()
                     # removeGameInList(game)
 
@@ -86,12 +89,11 @@ async def wshandler(request):
                         # else:
                         game.emptyPlayers()
                         removeGameInList(game)
-                    else: # the quitor might be a watcher
+                    else:  # the quitor might be a watcher
                         game = Game.getWatchersMapping(quitor)
                         game.removeWatcher(quitor) if game else None
                     await PlayerAgent.sendAllGamesList(app["games"])
                     # quitor.sendGamesList(app["games"])
-
 
         elif msg.type == WSMsgType.CLOSE:
             offliner = PlayerAgent.getMapping(ws)
@@ -117,6 +119,7 @@ async def wshandler(request):
     logging.info("Closed connection")
     return ws
 
+
 def getGameInList(game_id):
     """game_id should a integer"""
     games = app['games']
@@ -124,6 +127,7 @@ def getGameInList(game_id):
         return [game for game in games if game._id == game_id][0]
     else:
         return None
+
 
 def removeGameInList(game):
     app['games'] = [item for item in app['games'] if item != game]
@@ -140,6 +144,8 @@ app.router.add_route('GET', '/connect', wshandler)
 app.router.add_route('GET', '/{name}', handle)
 app.router.add_route('GET', '/', handle)
 
-# get port for gomoku
-port = int(os.environ.get('PORT', 5000))
-web.run_app(app, port=port)
+
+if __name__ == "__main__":
+    # get port for gomoku
+    port = int(os.environ.get('PORT', 5000))
+    web.run_app(app, port=port)

@@ -1,10 +1,11 @@
 import logging
 import random
 
+
 class Game:
 
     _lastID = 0
-    _Mapping = {} # player:game pairs mappins of gamers, watchers excluded here
+    _Mapping = {}  # player:game pairs mappins of gamers, watchers excluded here
     _watchersMapping = {}
 
     @staticmethod
@@ -45,8 +46,8 @@ class Game:
         # TODO: type check
         # TODO: player number check
         if len(self.players) < 2:
-            self.players.append(player2) # add to game's players list
-            Game.updateMapping(player2, self) # add to global mappings
+            self.players.append(player2)  # add to game's players list
+            Game.updateMapping(player2, self)  # add to global mappings
             if len(self.players) == 2:
                 await self.start()
         else:
@@ -57,7 +58,7 @@ class Game:
 
     def emptyPlayers(self):
         [Game.popMapping(p) for p in self.players]
-        self.players = list() # set to an empty list
+        self.players = list()  # set to an empty list
 
     async def start(self):
         if len(self.players) != 2:
@@ -65,8 +66,8 @@ class Game:
             return
 
         # TODO: toss stone
-        stones = ['X','O']
-        random.shuffle(stones) # shuffle in place
+        stones = ['X', 'O']
+        random.shuffle(stones)  # shuffle in place
         # TODO: send 'game_start, game, stone, opponent for each player
         await self.players[0].sendGameStart(self, stones[0], self.players[1])
         await self.players[1].sendGameStart(self, stones[1], self.players[0])
@@ -90,7 +91,7 @@ class Game:
         self.recent_placings = placings
         player0 = self.players[0]
         player1 = self.players[1]
-        to_player = player0 if player0!=from_player else player1
+        to_player = player0 if player0 != from_player else player1
         await to_player.sendComponentMove(placings, from_player.stone)
         msg = "{}'s turn".format(to_player.playerName)
         await self.broadcastToWatchers(msg=msg)

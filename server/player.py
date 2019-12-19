@@ -1,6 +1,7 @@
 import logging
 import json
 
+
 class PlayerAgent:
 
     _lastID = 0
@@ -24,15 +25,13 @@ class PlayerAgent:
             await player.sendGamesList(games)
 
     def __init__(self, playerName, ws):
-        #TODO: ws type check
+        # TODO: ws type check
         self._id = PlayerAgent._lastID
         PlayerAgent._lastID += 1
         self.playerName = playerName
         self._ws = ws
         self.stone = None
         PlayerAgent.updateMapping(ws, self)
-
-
 
     async def initialHandshake(self):
         # msg = json.dumps([('handshake', self._id, 'x')])
@@ -84,8 +83,3 @@ class PlayerAgent:
     async def _sendMessage(self, *args):
         msg = json.dumps([args])
         await self._ws.send_str(msg)
-
-
-
-
-
