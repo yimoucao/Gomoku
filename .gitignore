@@ -4,8 +4,8 @@ build/
 node_modules/
 __pycache__/
 *log
-Dockerfile
 *Docker*
+!Dockerfile
 *docker*
 *key.pri
 *key.pub

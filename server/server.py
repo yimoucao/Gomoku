@@ -10,9 +10,11 @@ from game import Game
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 INDEX_FILE_PATH = os.path.join(DIR_PATH, 'index.html')
 
+LOG_DIR = os.environ.get("GOMOKU_LOG_DIR", DIR_PATH)
+
 logging.basicConfig(
-    filename=os.path.join(DIR_PATH, 'log'),
-    filemode='w', level=logging.DEBUG)
+    filename=os.path.join(LOG_DIR, 'server.log'),
+    filemode='w', level=logging.INFO)
 
 
 async def handle(request):
@@ -25,7 +27,7 @@ async def handle(request):
 
 
 async def wshandler(request):
-    logging.info("Connected")
+    logging.debug("Connected")
     app = request.app
     ws = web.WebSocketResponse()
     await ws.prepare(request)
@@ -34,7 +36,7 @@ async def wshandler(request):
     while True:
         msg = await ws.receive()
         if msg.type == WSMsgType.TEXT:
-            logging.info("Got message {}".format(msg.data))
+            logging.debug("Got message {}".format(msg.data))
 
             data = json.loads(msg.data)
             # if type(data) == int and player:
@@ -100,7 +102,7 @@ async def wshandler(request):
             game = Game.getMapping(offliner)
             if game:
                 # if game.isOn():
-                logging.info("going to send offline")
+                logging.debug("going to send offline")
                 await game.sendOffline(offliner)
                 # else:
                 game.emptyPlayers()
@@ -116,7 +118,7 @@ async def wshandler(request):
     # if player:
     #     game.player_disconnected(player)
 
-    logging.info("Closed connection")
+    logging.debug("Closed connection")
     return ws
 
 
